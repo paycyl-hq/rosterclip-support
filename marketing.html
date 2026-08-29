@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RosterClip — AI Shift Calendar</title>
+  <meta name="description" content="Snap a photo of your work roster. RosterClip's AI reads it and syncs your shifts directly to Apple Calendar — in one tap." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a0f;
+      --surface: rgba(255,255,255,0.04);
+      --border: rgba(255,255,255,0.08);
+      --purple: #7c5cfc;
+      --purple-soft: rgba(124,92,252,0.15);
+      --text: #f0f0f5;
+      --muted: rgba(240,240,245,0.5);
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 20px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Ambient glow */
+    body::before {
+      content: '';
+      position: fixed;
+      top: -200px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(124,92,252,0.18) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    main {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 560px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 48px;
+      padding: 80px 0 60px;
+    }
+
+    /* Hero */
+    .hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      text-align: center;
+    }
+
+    .icon {
+      width: 80px;
+      height: 80px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, #7c5cfc, #4f8ef7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      box-shadow: 0 0 40px rgba(124,92,252,0.4);
+    }
+
+    .badge {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--purple);
+      background: var(--purple-soft);
+      border: 1px solid rgba(124,92,252,0.3);
+      padding: 4px 12px;
+      border-radius: 99px;
+    }
+
+    h1 {
+      font-size: clamp(28px, 6vw, 38px);
+      font-weight: 700;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+    }
+
+    h1 span {
+      background: linear-gradient(90deg, #7c5cfc, #4f8ef7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .sub {
+      font-size: 16px;
+      color: var(--muted);
+      line-height: 1.6;
+      max-width: 420px;
+    }
+
+    /* App Store button */
+    .cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: #fff;
+      color: #000;
+      padding: 13px 24px;
+      border-radius: 14px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 15px;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+
+    .cta:hover { opacity: 0.88; transform: translateY(-1px); }
+
+    .cta svg { flex-shrink: 0; }
+
+    /* Features */
+    .features {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      backdrop-filter: blur(12px);
+    }
+
+    .card-icon {
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    .card h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .card p {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    /* Steps */
+    .steps {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .step {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 16px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .step:last-child { border-bottom: none; }
+
+    .step-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--purple-soft);
+      border: 1px solid rgba(124,92,252,0.3);
+      color: var(--purple);
+      font-size: 13px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .step-text h4 { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+    .step-text p { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+    /* Footer */
+    footer {
+      position: relative;
+      z-index: 1;
+      padding: 0 0 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    footer a {
+      font-size: 12px;
+      color: var(--muted);
+      text-decoration: none;
+    }
+
+    footer a:hover { color: var(--text); }
+
+    footer p {
+      font-size: 12px;
+      color: rgba(240,240,245,0.25);
+    }
+
+    @media (max-width: 400px) {
+      .features { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="hero">
+      <div class="icon">📋</div>
+      <span class="badge">Available on the App Store</span>
+      <h1>Your shift roster,<br /><span>synced automatically.</span></h1>
+      <p class="sub">Snap a photo of your work schedule. RosterClip's AI reads it and adds your exact shifts to Apple Calendar — in one tap.</p>
+      <a class="cta" href="https://apps.apple.com/us/app/rosterclip-shift-calendar-ai/id6795643339" target="_blank" rel="noopener">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="black"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+        Download on the App Store
+      </a>
+    </div>
+
+    <div class="features">
+      <div class="card">
+        <div class="card-icon">📸</div>
+        <h3>Snap &amp; Done</h3>
+        <p>Photo or PDF — AI reads any roster format instantly.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🔒</div>
+        <h3>100% Private</h3>
+        <p>Processed on-device. Your schedule never leaves your phone.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">📅</div>
+        <h3>Native Calendar</h3>
+        <p>Syncs directly to Apple Calendar with automatic reminders.</p>
+      </div>
+      <div class="card">
+        <div class="card-icon">🤖</div>
+        <h3>Any Format</h3>
+        <p>Handwriting, grids, 24h time, any language — AI handles it.</p>
+      </div>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-text">
+          <h4>Take a photo of your roster</h4>
+          <p>Paper schedule, PDF, or screenshot — any format works.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-text">
+          <h4>Enter your name</h4>
+          <p>Type your name exactly as it appears on the schedule.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-text">
+          <h4>AI extracts your shifts</h4>
+          <p>Scans the grid and pulls only your hours — nothing else.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-text">
+          <h4>Save to calendar</h4>
+          <p>One tap. Full month added with reminders included.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div style="display:flex;gap:20px;">
+      <a href="https://paycyl-hq.github.io/rosterclip-support/" target="_blank">Privacy Policy</a>
+      <a href="https://paycyl-hq.github.io/rosterclip-support/" target="_blank">Support</a>
+      <a href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/" target="_blank">Terms of Use</a>
+    </div>
+    <p>© 2026 RosterClip. All rights reserved.</p>
+  </footer>
+</body>
+</html>
