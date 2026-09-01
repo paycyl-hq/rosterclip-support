@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobil PDF Viewer</title>
+</head>
+<body style="display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background: #f4f4f9;">
+
+    <button id="pdfButon" style="padding: 15px 30px; font-size: 18px; background: #28a745; color: white; border: none; border-radius: 8px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        📄 PDF'i Aç / İndir
+    </button>
+
+    <script>
+    // Buraya gönderdiğin verinin TAMAMINI yapıştırıyorsun
+    const pdfDataUri = "data:application/pdf;base64,JVBERi0xLjQKJYCAgIANMSAwIG9iago8PAo... (KODUN DEVAMI)";
+
+    document.getElementById('pdfButon').addEventListener('click', async function() {
+        try {
+            // 1. Base64 string'i fetch ile anında Blob'a (gerçek PDF dosyasına) çevir
+            const response = await fetch(pdfDataUri);
+            const blob = await response.blob();
+
+            // 2. İşletim sistemi için sanal bir dosya URL'si oluştur
+            const blobUrl = URL.createObjectURL(blob);
+
+            // 3. Görünmez bir link yarat, tıkla ve sil
+            const link = document.createElement('a');
+            link.href = blobUrl;
+            link.target = '_blank'; // iOS Safari için yeni sekmede native görüntüleme
+            link.download = 'dokuman.pdf'; // Android için indirme tetiği
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            // 4. Hafızayı temizle
+            setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
+            
+        } catch (error) {
+            alert("PDF yüklenirken bir hata oluştu.");
+            console.error(error);
+        }
+    });
+    </script>
+
+</body>
+</html>
